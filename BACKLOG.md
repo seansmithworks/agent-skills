@@ -117,3 +117,28 @@ Nothing has been built yet.
   interleaved with this thread's. Determine whether the guard only covers zsh launches (this session
   may not have come through it) or whether it is genuinely broken. Off-objective, discovered
   incidentally.
+
+
+## Recovered from old Mac — uncommitted as of 2026-09-24 (merged 2026-09-25, review and fold in)
+
+### 2026-09-02 (thread "Gooseworks take-home") — project-bootstrap scaffolding, scoped not built
+`orchestrator-scaffold` covers **knowledge** files only (v2.1 lifecycle agents, v2.2
+grounding). It has no lane for bootstrapping the actual project and its infrastructure.
+A full web bootstrap was run by hand this session and documented at
+`~/Code/docs/solutions/web-project-bootstrap-github-vercel.md` — that doc is the source
+material if this gets built.
+
+**Recommendation: sibling skill, not a fourth mode.** Three reasons:
+- `skills/orchestrator-scaffold/SKILL.md` is already 21.5K; platform lanes would balloon it.
+- Different trigger moment — scaffold runs on an existing project missing knowledge files,
+  bootstrap runs on an empty directory.
+- Different permission profile — bootstrap creates outward-facing resources (a repo, a
+  public URL) and needs approval gates that the markdown-only scaffold modes never hit.
+
+**Only the web/Vercel lane is evidence-backed.** iOS and macOS lanes were deliberately
+NOT written: no Xcode/TestFlight bootstrap has actually been run, and inventing those
+steps is how a skill becomes a wrong-ground-truth bug. Stub them; fill each one the
+first time it is genuinely executed.
+
+If built, it goes through `skill-forge` — the arm-gate applies, so it is not done until
+it test-fires on a throwaway repo with pasted evidence.
