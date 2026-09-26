@@ -23,8 +23,8 @@ Surface only — apply nothing. Read the file itself only when the count is non-
 
 - 0 → silent
 - 1–2 → one line: "Orchestrator has N pending updates."
-- 3–4 → same, plus "Run `/orchestrator:update` to review."
-- 5+ → "Orchestrator has N pending updates. Backlog is building — recommend `/orchestrator:update` this session."
+- 3–4 → same, plus "Run `/orchestrator-update` to review."
+- 5+ → "Orchestrator has N pending updates. Backlog is building — recommend `/orchestrator-update` this session."
 
 ## 3. Project scaffolding
 
@@ -38,7 +38,7 @@ Check for `CLAUDE.md` (required); `DESIGN.md` (required when `*.tsx`, `*.jsx`, `
 
 - 0 missing → silent
 - 1 missing → one line naming the file and why it matters
-- 2+ missing, or `DESIGN.md` missing on a UI project → name the inferred version and the gap, and point at `/orchestrator:scaffold`
+- 2+ missing, or `DESIGN.md` missing on a UI project → name the inferred version and the gap, and point at `/orchestrator-scaffold`
 
 ## 4. Read existing context
 

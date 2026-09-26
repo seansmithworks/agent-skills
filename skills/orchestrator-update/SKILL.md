@@ -1,17 +1,17 @@
 ---
 name: orchestrator-update
-description: Review and apply pending orchestrator config updates. Use when the user says "/orchestrator:update", "check pending updates", or on session start if the registry has pending entries. Surfaces improvements from `~/.claude/PENDING-UPDATES.md`, applies selected ones via subagents, and validates with the eval suite.
+description: Review and apply pending orchestrator config updates. Use when the user says "/orchestrator-update", "check pending updates", or on session start if the registry has pending entries. Surfaces improvements from `~/.claude/PENDING-UPDATES.md`, applies selected ones via subagents, and validates with the eval suite.
 allowed-tools: Read, Write, Edit, Bash, Glob, Agent, Skill
 version: 0.2.0
 ---
 
-# /orchestrator:update
+# /orchestrator-update
 
 Manage the orchestrator's config evolution. Opt-in: nothing auto-applies.
 
 ## When to use
 
-- You run `/orchestrator:update` explicitly
+- You run `/orchestrator-update` explicitly
 - Session-start check found entries in `~/.claude/PENDING-UPDATES.md` with `- **Status:** pending` and you want to review
 - After any significant model or config change, to catch regressions early
 
@@ -96,7 +96,7 @@ When adding a new pending entry during a session:
 
 ## Prune mode
 
-`/orchestrator:update prune` reviews all entries with age >60 days:
+`/orchestrator-update prune` reviews all entries with age >60 days:
 
 - Shows title, age, why it hasn't been applied yet
 - Offers to mark each as `dismissed-YYYY-MM-DD` with a short reason
@@ -105,7 +105,7 @@ When adding a new pending entry during a session:
 
 - Never auto-apply entries. Always require explicit user selection.
 - Always run baseline + post-apply evals. A skipped eval is not permitted.
-- Commit nothing on behalf of the user — this skill edits personal config files (`~/.claude/`), which is not a git repo. Manage its backup separately.
+- Commit nothing on behalf of the user — this skill edits personal config files (`~/.claude/`). Manage its backup separately.
 
 ## Files touched
 

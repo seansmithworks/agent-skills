@@ -102,7 +102,7 @@ Run what the session earned. Steps 0 and 4 are the load-bearing ones.
 
 ## Size ceilings
 
-Files that load automatically into every future session (`MEMORY.md`, `ORCHESTRATOR.md`, `CLAUDE.md`) are measured with `wc -c` — never in lines. A line count hides real growth here: these files are written in paragraphs, so a file that blows the char cap 5x over can still read as "a few hundred lines." `MEMORY.md` and `CLAUDE.md` cap at **20,000 characters.** `ORCHESTRATOR.md` targets **10,000–15,000 characters, hard max 20,000**, sub-allocated by section so no single section absorbs the whole range:
+Files that load automatically into every future session (`MEMORY.md`, `ORCHESTRATOR.md`, `CLAUDE.md`) are measured with `wc -c` — never in lines. A line count hides real growth here: these files are written in paragraphs, so a file that blows the char cap 5x over can still read as "a few hundred lines." `MEMORY.md` and `CLAUDE.md` size per `~/.claude/CONTEXT-RIGHTSIZING.md`. `ORCHESTRATOR.md` targets **10,000–15,000 characters, hard max 20,000**, sub-allocated by section so no single section absorbs the whole range:
 
 | Section | Budget |
 |---|---|

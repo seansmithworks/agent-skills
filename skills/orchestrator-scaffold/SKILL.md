@@ -1,15 +1,15 @@
 ---
 name: orchestrator-scaffold
-description: Scaffold missing project files via three modes. Use when the user says "/orchestrator:scaffold", "scaffold this project", "set up agent files", "create grounding files", "add mission brand principles", or when Phase 1 boot check surfaces missing scaffolding. Three modes — default (auto-detect), lifecycle (v2.1 agent files), grounding (v2.2 mission/brand/principles interview).
+description: Scaffold missing project files via three modes. Use when the user says "/orchestrator-scaffold", "scaffold this project", "set up agent files", "create grounding files", "add mission brand principles", or when Phase 1 boot check surfaces missing scaffolding. Three modes — default (auto-detect), lifecycle (v2.1 agent files), grounding (v2.2 mission/brand/principles interview).
 allowed-tools: Read, Write, Edit, Bash, Glob, Agent, Skill
 version: 0.3.0
 ---
 
-# /orchestrator:scaffold — Project Scaffolding
+# /orchestrator-scaffold — Project Scaffolding
 
-Closes the gap between Phase 1 boot reporting what's missing and the scaffolding actually existing. Handles both scaffolding tiers: the v2.1 lifecycle agent files (six domain specialists) and the v2.2 grounding files (mission.md, brand.md, principles.md — the identity layer that survives compaction). A bare `/orchestrator:scaffold` reads SCAFFOLDING.md, checks what's actually on disk, and presents gaps. The two explicit modes (`lifecycle` and `grounding`) let you skip straight to a specific goal.
+Closes the gap between Phase 1 boot reporting what's missing and the scaffolding actually existing. Handles both scaffolding tiers: the v2.1 lifecycle agent files (six domain specialists) and the v2.2 grounding files (mission.md, brand.md, principles.md — the identity layer that survives compaction). A bare `/orchestrator-scaffold` reads SCAFFOLDING.md, checks what's actually on disk, and presents gaps. The two explicit modes (`lifecycle` and `grounding`) let you skip straight to a specific goal.
 
-Sibling to `/orchestrator:update`, which handles config evolution. This skill handles initial setup and gap-filling, not config changes.
+Sibling to `/orchestrator-update`, which handles config evolution. This skill handles initial setup and gap-filling, not config changes.
 
 ---
 
@@ -17,7 +17,7 @@ Sibling to `/orchestrator:update`, which handles config evolution. This skill ha
 
 ### default — auto-detect what's missing
 
-Triggered by: bare `/orchestrator:scaffold`
+Triggered by: bare `/orchestrator-scaffold`
 
 #### Steps
 
@@ -56,19 +56,19 @@ Triggered by: bare `/orchestrator:scaffold`
 
 ### lifecycle — v2.1 agent files
 
-Triggered by: `/orchestrator:scaffold lifecycle`
+Triggered by: `/orchestrator-scaffold lifecycle`
 
 Mechanical scaffold of the six core lifecycle agent files using project-specific content from a codebase explore pass.
 
 #### Steps
 
-1. **Check for mission.md.** Look at project root and memory dir. If missing: halt with — _"Lifecycle agents need a mission to be useful. Run `/orchestrator:scaffold grounding` first, or tell me: what are you building and who is it for? I'll draft a mission.md from your answer."_ Do NOT proceed without a mission. This is a MUST stop, not a suggestion.
+1. **Check for mission.md.** Look at project root and memory dir. If missing: halt with — _"Lifecycle agents need a mission to be useful. Run `/orchestrator-scaffold grounding` first, or tell me: what are you building and who is it for? I'll draft a mission.md from your answer."_ Do NOT proceed without a mission. This is a MUST stop, not a suggestion.
 
 2. **Check for existing agent files.** If any of the six agent files already exist in the memory dir: read each one, report which exist, and ask — "These files already exist. Overwrite, skip individual files, or cancel?" MUST NOT overwrite without explicit confirmation.
 
 3. **Check for legacy v1 files.** If `agent-frontend.md`, `agent-backend.md`, `agent-api.md`, `agent-design.md`, or `agent-mobile.md` exist in the memory dir: read each one and propose which of the six v2.1 roles (product, experience, craft, build, data, quality — see step 5 below) its content maps to, then wait for the user's confirmation before folding it in. Do not auto-rename or delete old files — surface the migration plan and wait for the user's go-ahead.
 
-4. **Explore the codebase.** Dispatch an Explore subagent (T2 Sonnet) to map the project:
+4. **Explore the codebase.** Dispatch an `explore` subagent to map the project:
    - File inventory with one-line purposes
    - Data flows and key abstractions
    - Conventions (naming, file organization, patterns)
@@ -76,7 +76,7 @@ Mechanical scaffold of the six core lifecycle agent files using project-specific
    - Test structure and coverage patterns
    - Skip the explore pass if fewer than ~20 source files — use the user's description of the codebase instead.
 
-5. **Dispatch 6 parallel draft subagents** (T2 Sonnet), one per role: product, experience, craft, build, data, quality. Each subagent receives:
+5. **Dispatch 6 parallel `implementer` subagents**, one per role: product, experience, craft, build, data, quality. Each subagent receives:
    - mission.md content
    - Explore report scoped to its domain
    - Its role's scope: product (why/who/what to build), experience (UX/UI/interaction), craft (design tokens, visual system), build (architecture, code conventions), data (schema, storage, sync), quality (testing, review, release gates)
@@ -111,7 +111,7 @@ Mechanical scaffold of the six core lifecycle agent files using project-specific
 
 ### grounding — v2.2 mission/brand/principles
 
-Triggered by: `/orchestrator:scaffold grounding`
+Triggered by: `/orchestrator-scaffold grounding`
 
 Interview-driven flow. The three files capture the user's voice and product thinking — not boilerplate. Interview first, draft, confirm, then write. The sequence is one-file-at-a-time.
 
@@ -195,8 +195,9 @@ read ~/.claude/projects/SCAFFOLDING.md
 recorded_version = row["version"]  # e.g. "v2.2", "v2.1", "v0"
 
 derive memory_dir:
+  import re
   full_path = expand(cwd)           # e.g. /Users/yourname/Code/my-app
-  slug = full_path.replace("/", "-").replace(" ", "-")  # -Users-yourname-Code-my-app
+  slug = re.sub(r'[^A-Za-z0-9]', '-', full_path)  # -Users-yourname-Code-my-app
   memory_dir = "~/.claude/projects/" + slug + "/memory/"
 
 check disk:
