@@ -44,11 +44,11 @@ Options:
 - "cancel" to exit
 ```
 
-### Step 3 — Mandatory baseline eval (non-bypassable)
+### Step 3 — Baseline eval
 
 Before applying anything:
 
-- If `~/.claude/evals/` exists: run the tokenize script `python3 ~/.claude/evals/tokenize.py` — save output as baseline. This measures token counts for the auto-loaded context layers (global CLAUDE.md, global MEMORY.md, orchestrator-prompt.md, project CLAUDE.md). Then run the 8-test behavioral suite from `~/.claude/evals/orchestrator-smoke-test.md` (spawn a subagent that reads the config + predicts outcomes for all 8 tests) — save as baseline. This step cannot be skipped. A session that applies changes without a baseline has no signal on regressions.
+- If `~/.claude/evals/` exists: run the tokenize script `python3 ~/.claude/evals/tokenize.py` — save output as baseline. This measures token counts for the auto-loaded context layers (global CLAUDE.md, global MEMORY.md, orchestrator-prompt.md, project CLAUDE.md). Then run the 8-test behavioral suite from `~/.claude/evals/orchestrator-smoke-test.md` (spawn a subagent that reads the config + predicts outcomes for all 8 tests) — save as baseline. Without a baseline there is no regression signal.
 - If `~/.claude/evals/` does not exist: fall back. Baseline becomes `wc -c` on every file named in the selected entries' blast radius, taken now. The behavioral suite is skipped. The Step 7 report must say explicitly that the eval suite was unavailable and this fallback ran instead.
 
 ### Step 4 — Apply
@@ -59,11 +59,11 @@ For each selected entry:
 - Subagent applies changes, returns a summary
 - Do NOT parallelize multiple entries unless they touch disjoint files
 
-### Step 5 — Mandatory post-apply eval (non-bypassable)
+### Step 5 — Post-apply eval
 
 After all selected entries applied:
 
-- If `~/.claude/evals/` exists: re-run `python3 ~/.claude/evals/tokenize.py` — save output as post-apply result. Re-run the 8-test behavioral suite from `~/.claude/evals/orchestrator-smoke-test.md` — save as post-apply result. Compare to baselines and produce a delta report. Format: `MEMORY.md: 1,652 → N tokens (±delta). Behavioral: N/8 PASS.` **If behavioral suite shows regressions:** surface them with HIGH visibility (e.g., `⚠ REGRESSION: Test 3 DESIGN.md awareness — was PASS, now FAIL`). Do NOT silently apply. The user retains override authority — if they confirm, proceed. If unconfirmed, hold and explain what regressed. This step cannot be skipped. The eval is non-bypassable by design.
+- If `~/.claude/evals/` exists: re-run `python3 ~/.claude/evals/tokenize.py` — save output as post-apply result. Re-run the 8-test behavioral suite from `~/.claude/evals/orchestrator-smoke-test.md` — save as post-apply result. Compare to baselines and produce a delta report. Format: `MEMORY.md: 1,652 → N tokens (±delta). Behavioral: N/8 PASS.` **If behavioral suite shows regressions:** surface them with HIGH visibility (e.g., `⚠ REGRESSION: Test 3 DESIGN.md awareness — was PASS, now FAIL`). Do NOT silently apply. The user retains override authority — if they confirm, proceed. If unconfirmed, hold and explain what regressed.
 - If `~/.claude/evals/` does not exist: re-run `wc -c` on the same files from the Step 3 fallback baseline and produce a byte-delta report. State plainly that the behavioral suite was skipped and regressions cannot be detected this run.
 
 ### Step 6 — Update registry
@@ -104,7 +104,7 @@ When adding a new pending entry during a session:
 ## Constraints
 
 - Never auto-apply entries. Always require explicit user selection.
-- Always run baseline + post-apply evals. A skipped eval is not permitted.
+- Run baseline and post-apply evals; without both there's no regression signal.
 - Commit nothing on behalf of the user — this skill edits personal config files (`~/.claude/`). Manage its backup separately.
 
 ## Files touched

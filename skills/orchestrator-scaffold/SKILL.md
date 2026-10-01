@@ -50,7 +50,7 @@ Triggered by: bare `/orchestrator-scaffold`
 6. Wait for the user's selection, then run the corresponding mode.
 7. If the project is not in SCAFFOLDING.md: treat as v0. Before doing anything, ask: "Is this an active project with continuity, or an experiment / scratch work? Grounding files only pay off on projects you'll be compacting for weeks." Wait for the user's answer before proceeding.
 
-> **Grounding-first in "both" mode is LOCKED.** When the user selects "both", MUST run grounding first, then lifecycle. Mission.md must exist before lifecycle agent files generate — they need it to produce non-generic content.
+> **In "both" mode, run grounding first, then lifecycle.** Lifecycle agent files need mission.md to produce non-generic content.
 
 ---
 
@@ -62,9 +62,9 @@ Mechanical scaffold of the six core lifecycle agent files using project-specific
 
 #### Steps
 
-1. **Check for mission.md.** Look at project root and memory dir. If missing: halt with — _"Lifecycle agents need a mission to be useful. Run `/orchestrator-scaffold grounding` first, or tell me: what are you building and who is it for? I'll draft a mission.md from your answer."_ Do NOT proceed without a mission. This is a MUST stop, not a suggestion.
+1. **Check for mission.md.** Look at project root and memory dir. If missing: halt with — _"Lifecycle agents need a mission to be useful. Run `/orchestrator-scaffold grounding` first, or tell me: what are you building and who is it for? I'll draft a mission.md from your answer."_ Do not proceed without a mission.
 
-2. **Check for existing agent files.** If any of the six agent files already exist in the memory dir: read each one, report which exist, and ask — "These files already exist. Overwrite, skip individual files, or cancel?" MUST NOT overwrite without explicit confirmation.
+2. **Check for existing agent files.** If any of the six agent files already exist in the memory dir: read each one, report which exist, and ask — "These files already exist. Overwrite, skip individual files, or cancel?" Never overwrite without explicit confirmation.
 
 3. **Check for legacy v1 files.** If `agent-frontend.md`, `agent-backend.md`, `agent-api.md`, `agent-design.md`, or `agent-mobile.md` exist in the memory dir: read each one and propose which of the six v2.1 roles (product, experience, craft, build, data, quality — see step 5 below) its content maps to, then wait for the user's confirmation before folding it in. Do not auto-rename or delete old files — surface the migration plan and wait for the user's go-ahead.
 
@@ -122,7 +122,7 @@ Interview-driven flow. The three files capture the user's voice and product thin
    - brand.md — governs every surface with a voice; microcopy, error messages, marketing
    - principles.md — always/never/when-in-doubt tiebreaker for subagents at decision forks
 
-2. **Check for existing grounding files.** If mission.md, brand.md, or principles.md already exist at project root: read each one first. For each that exists, ask — "mission.md already exists. Do you want to (1) review and iterate on it, (2) replace from scratch, or (3) skip it?" MUST NOT overwrite without explicit per-file confirmation. This check is BLOCKING — do not proceed to the interview for a file until its overwrite question is answered.
+2. **Check for existing grounding files.** If mission.md, brand.md, or principles.md already exist at project root: read each one first. For each that exists, ask — "mission.md already exists. Do you want to (1) review and iterate on it, (2) replace from scratch, or (3) skip it?" Never overwrite without explicit per-file confirmation; do not start a file's interview until its overwrite question is answered.
 
 3. **Run the interview file-by-file** (see Interview Flow section). For each file:
    a. Ask the interview questions for that file
@@ -130,7 +130,7 @@ Interview-driven flow. The three files capture the user's voice and product thin
    c. Show the draft to Sean
    d. Iterate once if needed — one revision round, not a negotiation loop
    e. Confirm ("Does this look right? I'll write it to disk on your go-ahead.")
-   f. **MUST wait for explicit confirmation before writing.** No-write-until-confirmed is a hard rule, not a suggestion. If the user abandons mid-interview, write nothing to disk.
+   f. **Wait for explicit confirmation before writing.** If the user abandons mid-interview, write nothing to disk.
 
 4. **Write files to project root** (not the memory dir — grounding files travel with the code):
    - `<project-root>/mission.md`
@@ -283,7 +283,7 @@ Questions to ask:
 - **brand.md:** ~300 words, sections: voice / character / tone calibration per state / what it's not / how to apply
 - **principles.md:** ~330 words, sections: always / never / when in doubt / how to apply
 
-Each file MUST close with a "How to apply" section that tells a subagent when to pull this file in. Files without this section are documentation, not decision tools.
+Each file closes with a "How to apply" section that tells a subagent when to pull this file in. Files without this section are documentation, not decision tools.
 
 For lifecycle agent files: use the six role scopes and 80–150 line target given in the lifecycle mode's step 5 above as the structural template.
 
@@ -307,11 +307,11 @@ Three tunable decisions deferred to first-run. Sensible defaults are below — r
 
 **Project already at target version (idempotency):** Report "already at v2.2 — nothing to generate." Offer: "Want to refresh a specific file? (mission / brand / principles / agent-[role])" — re-runs the interview for that file alone, overwrites with confirmation.
 
-**User abandons interview mid-flow:** MUST write nothing to disk. The skill has no partial-write behavior. Nothing lands on disk until the user confirms each file's draft. If the user says "pause" or "save where we are," write a `draft-<filename>.md` in the project root clearly labeled `DRAFT — NOT FINAL`, only if explicitly asked.
+**User abandons interview mid-flow:** write nothing to disk; nothing lands until the user confirms each file's draft. If the user says "pause" or "save where we are," write a `draft-<filename>.md` in the project root clearly labeled `DRAFT — NOT FINAL`, only if explicitly asked.
 
-**Files already exist with content:** MUST read first. MUST ask before overwriting — for each file individually. The question: "mission.md already exists — review and iterate, replace from scratch, or skip?" Overwriting without asking is forbidden. Applies to all three grounding files and all six lifecycle agent files.
+**Files already exist with content:** read first, then ask per file before overwriting. The question: "mission.md already exists — review and iterate, replace from scratch, or skip?" Applies to all three grounding files and all six lifecycle agent files.
 
-**Project at v0, scratch, or \_experiments/:** MUST ask before doing anything. "This looks like a new or experimental project. Grounding files are designed for projects with at least a few weeks of continuity. Worth it here, or skip?" For confirmed experiments, offer lifecycle-only scaffolding (useful even short-term) or exit cleanly.
+**Project at v0, scratch, or \_experiments/:** ask before doing anything. "This looks like a new or experimental project. Grounding files are designed for projects with at least a few weeks of continuity. Worth it here, or skip?" For confirmed experiments, offer lifecycle-only scaffolding (useful even short-term) or exit cleanly.
 
 **Legacy v1 projects (old-style agent files present):** Detect ad-hoc filenames: `agent-frontend.md`, `agent-backend.md`, `agent-api.md`, `agent-design.md`, `agent-mobile.md`, `agent-testing.md`, `agent-qa.md`. Read each and propose which v2.1 role it maps to (per the mapping step in lifecycle mode, step 3) before generating new lifecycle files. Do NOT auto-rename or delete old files — surface the migration plan and wait for the user's go-ahead. Never silently remove v1 files.
 
@@ -323,7 +323,7 @@ Three tunable decisions deferred to first-run. Sensible defaults are below — r
 
 The skill handles these steps before closing:
 
-1. **Update SCAFFOLDING.md** with the new version, scaffolding pattern, agents present, and today's date. Format MUST match the existing table shape exactly — no new columns, no format drift.
+1. **Update SCAFFOLDING.md** with the new version, scaffolding pattern, agents present, and today's date. Match the existing table shape exactly — no new columns, no format drift.
 
 2. **Print a summary** of what was created: file paths, line/word counts, any files that landed thin with a note on why.
 
