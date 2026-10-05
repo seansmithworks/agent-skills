@@ -1,6 +1,6 @@
 ---
 name: wrap-continue
-description: Checkpoint a long-lived thread mid-task so it can be thrown away and resumed in a fresh one — stop background writers, commit, smart-push, reconcile open items into BACKLOG.md, and render a copyable pickup prompt inline. Use when the work is NOT finished and continues immediately in a new thread ("wrap and continue", "checkpoint", "context reset", "trim and keep going", "recycle this thread"). Do NOT use when the session is actually over — done for the day, work complete, or switching to unrelated work; that is /wrap's heavy retrospective. The distinguishing test is whether the task is finished, not whether the thread is ending.
+description: Checkpoint a long-lived thread mid-task so it can be thrown away and resumed in a fresh one — stop background writers, commit, smart-push, run the scope audit, reconcile open items into BACKLOG.md, and render a copyable pickup prompt inline. Use when the work is NOT finished and continues immediately in a new thread ("wrap and continue", "checkpoint", "context reset", "trim and keep going", "recycle this thread"). Do NOT use when the session is actually over — done for the day, work complete, or switching to unrelated work; that is /wrap's heavy retrospective. The distinguishing test is whether the task is finished, not whether the thread is ending.
 license: MIT
 metadata:
   version: 1.0.0
@@ -49,6 +49,15 @@ If nothing is running, one line and move on.
 | Everything else — including `main` when it tracks `origin`, and deploy/staging remotes pushed to routinely | push |
 
 Refusing an `origin` push on your own safety reasoning ("this deploys production", "want me to push?") is a failure, not caution. The narrow skips exist for one reason: never create an outward-facing effect resembling an upstream contribution (prior Ghostty incident — an unintended PR opened upstream).
+
+## 2a. Scope audit
+
+Runs once per session, here: after the commit so the diff is complete, before the ledger, because dropouts feed it. Run `python3 ~/.claude/hooks/scope-check.py wrap "$CLAUDE_CODE_SESSION_ID"` (~20s, Haiku, always exits 0) and act on each line:
+
+- `DROPOUT — …`: an ask Sean made with no matching change. Show it was actually done (evidence), or append it to `BACKLOG.md` like any other open item. Never silently drop it.
+- `DRIFT — …`: state it in one line in the report, without re-litigating it.
+- `CLEAN`, `NO SCOPE CARD`, `NO ASKS`: no action; one line in the report.
+- `AUDIT FAILED: …`: say so in the report and carry on.
 
 ## 3. Light capture — only what the code cannot tell you
 
@@ -176,7 +185,7 @@ Keyed on the repo's toplevel, so a worktree gets its own pickup file (its toplev
 
 ## 6. Output shape
 
-A status table so the run can be confirmed at a glance, then the pickup prompt. Row vocabulary: Agents · Git · Capture · Backlog · Repo · Clipboard · Pickup · Thread.
+A status table so the run can be confirmed at a glance, then the pickup prompt. Row vocabulary: Agents · Git · Scope audit · Capture · Backlog · Repo · Clipboard · Pickup · Thread.
 
 **Omit any row that does not apply this run** — no `None running`, no `No change`, no empty Thread row. A row that says nothing is noise.
 

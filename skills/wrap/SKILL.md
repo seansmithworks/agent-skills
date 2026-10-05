@@ -1,6 +1,6 @@
 ---
 name: wrap
-description: End-of-session close-out — secure uncommitted work, put every open item in a durable home, refresh shared project state, and report honestly what was captured and what was skipped. Use when Sean is done for the day or longer ("wrap", "wrap it up", "done for now", "that's it for today", "end session", /wrap), including when the session contained almost nothing — it then correctly does almost nothing rather than not running. Retrospective only — never emits a resume/pickup prompt. Do NOT use for mid-task context recycling where the same work continues in a fresh thread (that is /wrap-continue), for answering questions about what wrapping does, or when a single narrower capture was asked for (just commit this, save one note).
+description: End-of-session close-out — secure uncommitted work, run the scope audit, put every open item in a durable home, refresh shared project state, and report honestly what was captured and what was skipped. Use when Sean is done for the day or longer ("wrap", "wrap it up", "done for now", "that's it for today", "end session", /wrap), including when the session contained almost nothing — it then correctly does almost nothing rather than not running. Retrospective only — never emits a resume/pickup prompt. Do NOT use for mid-task context recycling where the same work continues in a fresh thread (that is /wrap-continue), for answering questions about what wrapping does, or when a single narrower capture was asked for (just commit this, save one note).
 license: MIT
 metadata:
   version: 1.0.0
@@ -36,7 +36,7 @@ These are the failure modes. Everything else is judgment.
 
 3. **Verify delegated work against the filesystem, not against the report.** Only applies if this thread delegated. A subagent's "done" is a claim: check that the file exists, the commit landed, the scope was met. A gap is either closed now or written into the durable open-item records — never softened, never reported resolved. This check runs *before* anything downstream is written on the strength of it.
 
-4. **Dependency order.** freeze → verify delegations → commit code → tickets → reconcile open items → learnings → shared state → session record → docs commit → push. Artifacts cite identifiers that already exist. A session note cannot cite the SHA of the commit that contains it. Reconcile the backlog before writing shared state, so the two records don't contradict each other about what's open.
+4. **Dependency order.** freeze → verify delegations → commit code → tickets → scope audit → reconcile open items → learnings → shared state → session record → docs commit → push. Artifacts cite identifiers that already exist. A session note cannot cite the SHA of the commit that contains it. Reconcile the backlog before writing shared state, so the two records don't contradict each other about what's open.
 
 5. **One home per fact.** A learning lives in exactly one durable file and is referenced elsewhere by name — never restated in full inside `ORCHESTRATOR.md`, a session note, and a memory file. Same for the session's narrative: one long-term store, not two.
 
@@ -78,6 +78,11 @@ Run what the session earned. Steps 0 and 4 are the load-bearing ones.
 1. **Verify delegations.** Rule 3. Nothing to do if this thread delegated nothing — say that rather than omitting it.
 2. **Commit code.** If the tree is clean or the diff is noise, skip and say so.
 3. **Tickets.** Only if tracked tickets moved. Link the real SHAs from step 2.
+3a. **Scope audit.** Runs once per session, here, after the commit so the diff is complete and before reconciling, because dropouts feed it. Run `python3 ~/.claude/hooks/scope-check.py wrap "$CLAUDE_CODE_SESSION_ID"` (~20s, Haiku, always exits 0) and act on each line:
+   - `DROPOUT — …`: an ask Sean made with no matching change. Show it was actually done (evidence), or append it to `BACKLOG.md` like any other open item. Never silently drop it.
+   - `DRIFT — …`: state it in one line in the close-out, without re-litigating it.
+   - `CLEAN`, `NO SCOPE CARD`, `NO ASKS`: no action; one line in the close-out.
+   - `AUDIT FAILED: …`: say so in the close-out and carry on.
 4. **Reconcile open items.** If the scope card (`~/.claude/scope/$CLAUDE_CODE_SESSION_ID.md`) exists, state its locked Objective (the `│ Objective:` line, inside the frame) and a verdict (met, partly met, or not met) before folding anything into `BACKLOG.md`; if the thread's actual work diverged from that Objective, say so plainly rather than reporting success against a substituted goal. An Objective still reading `unset` is itself the finding — report it as unlocked rather than substituting what the thread happened to do. Walk the thread's task list item by item: finished → marked finished, not carried forward as noise; still open → into `BACKLOG.md`, no duplicate of an item already there. Fold the scope card's unchecked Done-when boxes and Noticed-not-pursued entries into `BACKLOG.md` the same way. **This runs whether or not the session produced any learnings** — it is not gated on step 5. It is the mechanism that makes "deferred is not dropped" true.
 
    Then, once the fold is done, stamp the scope card closed: tick any Done-when box that was actually met this session (leave genuinely unmet ones unticked — they're the honest record, already folded into `BACKLOG.md`), refresh `Updated:` to today (preserving its `│ ` rail), and add a `Closed: <date> — wrapped, open items in BACKLOG.md` line inside the frame, same `│ ` rail and label alignment as the other fields. Fold first, stamp second — stamping first risks marking closed something that never landed. If the scope card doesn't exist, say nothing and don't create one.
@@ -161,6 +166,7 @@ Cover, in whatever form fits:
 - commits, with SHAs, and whether they landed on origin or were skipped (and why)
 - anything left running or left broken, stated plainly (a branch that doesn't compile says so here, not only three files deep)
 - where each open item landed
+- `Scope audit:` the audit's result, one line
 - what was skipped, and why
 - what needs his decision
 
