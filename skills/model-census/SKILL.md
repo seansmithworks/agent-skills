@@ -26,5 +26,5 @@ Global install (`npx skills add ... -g`): `~/.claude/skills/model-census/scripts
 
 ## Always flag
 
-- Any Fable or top-tier row in the **MAIN THREAD** table — the main thread pays to read every tool output, so a top-tier default there is the expensive place for it to leak, not a per-task subagent.
-- A top-level `model` key in `~/.claude/settings.json` — that's a silent global default, usually written by `/model <x>` + Enter instead of the session-only flag.
+- Any Fable row in the **MAIN THREAD** table, or any model other than the declared `~/.claude/settings.json` default (Sean's is `opus`; Opus matching it is not a flag) — the main thread pays to read every tool output, so an undeclared top-tier default there is the expensive place for it to leak, not a per-task subagent.
+- A top-level `model` key in `~/.claude/settings.json` only when it is `fable`, a pinned version (anything that isn't a bare alias like `opus`, `sonnet` or `haiku`), or absent while the main thread runs Fable — that's a silent global default, usually written by `/model <x>` + Enter instead of the session-only flag. A bare `opus` is expected.
