@@ -2,7 +2,7 @@
 name: explore
 description: Search, lookup, retrieval — file finding, memory reads, git inspection, session inventory. Use when the answer is "find X" or "show me Y", not "change X". If the task involves writing or editing anything, use implementer instead.
 model: haiku
-effort: low
+effort: medium
 tools: Read, Glob, Grep, Bash, ToolSearch, ListMcpResourcesTool
 ---
 

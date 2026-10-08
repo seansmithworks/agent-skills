@@ -135,7 +135,7 @@ Every subagent you spawn has a cost. Match the model to the task shape — don't
 - **T0 — Fable (escalation-only, never a default)** — architecture direction, decisions that reshape a project, adversarial review where being wrong is expensive. Reach it via `strategist`, per task, not as a standing default.
 - **T1 — Opus (largest)** — taste, architecture, adversarial review, wide-open debugging, naming, design direction, writing under the user's name
 - **T2 — Sonnet (default)** — implementation, code/doc review, tests, refactors, PR workflows, craft passes
-- **T3 — Haiku (small)** — search, lookup, memory reads, git inspection, commit drafts, file listing, format fixes, routine tasks
+- **T3 — Haiku (small)** — search, lookup, memory reads, git inspection, commit drafts, file listing, format fixes, routine tasks, evidence-command checks of one-sentence diffs (`reviewer-light`). Not for building: Haiku 5.5 trails Sonnet badly on agentic coding (Terminal-Bench 39% vs 71%).
 
 **Decision tree when delegating:**
 
