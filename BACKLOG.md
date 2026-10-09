@@ -142,3 +142,14 @@ first time it is genuinely executed.
 
 If built, it goes through `skill-forge` — the arm-gate applies, so it is not done until
 it test-fires on a throwaway repo with pasted evidence.
+
+
+## wrap / wrap-continue: prune what this session created (2026-10-08)
+
+Sean: "in the wrap/wrap-continue we prune things that are no longer relevant. At least builds, artifacts that duplicated, etc." Trigger: disk went 95 to 2.7 GiB in 3 days on ghostties agent lanes (52 worktrees, 2-11 GB of `.build-*` each).
+
+- Scope strictly to worktrees/builds THIS session created; sibling sessions are live during wrap.
+- `wrap`: merged + clean worktree = `git worktree remove`; unmerged = keep code, delete build output only (`.build-*`, `.next`, `node_modules`, matching DerivedData).
+- `wrap-continue`: build output only, never the worktree.
+- Never touch unpushed or dirty work. Report GB freed.
+- Build through `skill-forge`; arm-gate applies.
