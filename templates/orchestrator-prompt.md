@@ -39,7 +39,7 @@ When you start a new orchestrator session:
    - Ask: "What are you building and who is it for?" → write `mission.md`
    - Copy the appropriate DESIGN.md template if it's a UI project
    - Use Explore agents in parallel to map the codebase
-   - Scaffold agent files using lifecycle roles (see the `orchestrator-scaffold` skill)
+   - Scaffold agent files using lifecycle roles (see the `agent-context` skill)
    - Agent roles: product, experience, craft, build, data, quality (core); marketing, content, growth, finance, support, ops (add when their lifecycle stage activates)
 
 5. **Build your mental model** of:

@@ -12,12 +12,11 @@ stateDiagram-v2
     Working --> Done: /wrap
     Working --> Checkpointed: /wrap-continue
     Done --> Working: cco (fresh)
-    Done --> Working: ccb (rehydrate state)
     Checkpointed --> Working: ccp (worktree + prompt restored)
     Done --> [*]
 ```
 
-There are two ways out of a session and three ways back in. `/wrap-continue` → `ccp` is the only round trip that preserves the thread, the other two exits start fresh or rehydrate from state instead of resuming.
+There are two ways out of a session and two ways back in. `/wrap-continue` → `ccp` is the only round trip that preserves the thread, the other exit starts fresh instead of resuming.
 
 ---
 
@@ -27,10 +26,6 @@ There are two ways out of a session and three ways back in. `/wrap-continue` →
 | --- | --- |
 | [`/wrap`](#wrap) | Messy end-of-day session → committed, captured, closed |
 | [`/wrap-continue`](#wrap-continue) | Context filling up mid-task → committed, closed, hot-resume prompt ready |
-| [`/orchestrator-boot`](#orchestrator-boot) | New orchestrator thread → context loaded, ready to work |
-| [`/orchestrator-update`](#orchestrator-update) | Pending config improvements sitting unreviewed → applied and eval-checked |
-| [`/orchestrator-scaffold`](#orchestrator-scaffold) | New or half-set-up project → agent and grounding files in place |
-| [`/orchestrator-route`](#orchestrator-route) | Over-target ORCHESTRATOR.md → facts routed to their owners, file back in range |
 | [`/gh-clean-branches`](#gh-clean-branches) | Local branches piling up → stale and merged ones pruned |
 | [`/gh-pr-triage`](#gh-pr-triage) | Open PRs in a repo scattered across states → grouped by what needs action |
 | [`/gh-fork-sync`](#gh-fork-sync) | Fork drifting behind upstream → synced and pushed to origin |
@@ -45,7 +40,7 @@ There are two ways out of a session and three ways back in. `/wrap-continue` →
 
 **Self-bootstrapping:** `wrap` and `wrap-continue`. They reference `ORCHESTRATOR.md`, `BACKLOG.md`, `MEMORY.md`, and pickup files, but those are files the skills write, not prerequisites. `BACKLOG.md` gets created if it's missing, the `ORCHESTRATOR.md` step skips itself when the file doesn't exist, Linear and Second Brain are optional steps. Working session hygiene from day one, no setup required.
 
-**Requires the pattern:** the four `orchestrator-*` skills plus the shell launchers. These assume the memory-dir convention and the companion files below. You don't build that convention by hand, `/orchestrator-scaffold` generates it, so the sequence is: curl the two companion files, run scaffold, and the rest follows.
+**Requires the pattern:** the shell launchers. They assume the memory-dir convention and the companion files below. You don't build that convention by hand, the `agent-context` skill generates it, so the sequence is: curl the two companion files, scaffold with `agent-context`, and the rest follows.
 
 The only thing genuinely tied to me is the shape of the convention. Adopt it and everything works, reject it and the first two tiers still run fine.
 
@@ -61,7 +56,7 @@ npx skills add seansmithworks/agent-skills -s '*' -g       # all of them, global
 
 `-a claude-code` targets Claude Code specifically. `-g` installs to `~/.claude/skills` instead of the current project.
 
-The orchestrator family and the launchers need three companion files that aren't skills, copy them first:
+The launchers need three companion files that aren't skills, copy them first:
 
 ```bash
 # Copy the companion files into your Claude config dir
@@ -112,28 +107,25 @@ jq '.hooks.SessionStart = ((.hooks.SessionStart // []) + [{"matcher":"","hooks":
 
 ## Launchers
 
-Three ways to open an orchestrator thread, two ways to close one.
+Two ways to open an orchestrator thread, two ways to close one.
 
 | | Close | Reopen |
 | --- | --- | --- |
-| Done for the day | `/wrap` | `cco` (clean slate) or `ccb` (rehydrate state) |
+| Done for the day | `/wrap` | `cco` (clean slate) |
 | Not done, out of context | `/wrap-continue` | `ccp` (worktree + prompt restored) |
 
 `/wrap-continue` → `ccp` is the only closed loop of the four: one writes the pickup file, the other consumes it. `ccp` does nothing useful without the `wrap-continue` skill installed.
 
 What each command does:
 
-- **`cco`** loads the orchestrator system prompt with scaffolding only — cheap.
-- **`ccb`** does the same, then runs `/orchestrator-boot` to rehydrate prior state — much more context, which is the entire reason these are two commands, not one.
+- **`cco`** loads the orchestrator system prompt; project state arrives through a SessionStart hook.
 - **`ccp`** is shorthand for `cco pickup`: restores the worktree and delivers the saved pickup prompt as the new thread's opening message.
 
 ```mermaid
 flowchart TD
     A[Opening a thread] --> B{Resuming a checkpoint?}
     B -->|yes| C[ccp]
-    B -->|no| D{Need prior project state?}
-    D -->|yes| E[ccb]
-    D -->|no| F[cco]
+    B -->|no| F[cco]
     G[Closing a thread] --> H{Is the work finished?}
     H -->|yes| I["/wrap"]
     H -->|no| J["/wrap-continue"]
@@ -167,39 +159,7 @@ Every Claude Code session ends the same two ways: you're done for the day, or yo
 
 The distinction matters. Run the heavy end-of-day flow on a continue and you waste the tokens you were trying to save. Run the light continue flow at end-of-day and you lose capture.
 
-### Orchestrator family: pattern hygiene
-
-The orchestrator is a long-lived Claude Code thread that never writes code. It learns the codebase, maintains context across compactions, and delegates all implementation to subagents. These three skills maintain the orchestrator itself, not the work it does.
-
-### /orchestrator-boot
-
-`New orchestrator thread → context loaded, ready to work`
-
-**When:** first activation of an orchestrator thread, or when you say "boot," "orchestrator boot," "start up," or "get up to speed on this project."
-**Does:** runs the session-start sequence, picks up a task assignment if one's queued, surfaces pending config updates and scaffolding gaps without reading either file in full, reads existing project context (with a rehydration short-circuit when `ORCHESTRATOR.md` is fresh), scaffolds agent files if the project is bare, and presents a summary for confirmation before doing any work.
-
-### /orchestrator-update
-
-`Pending config improvements sitting unreviewed → applied and eval-checked`
-
-**When:** you run `/orchestrator:update`, ask to check pending updates, or a session starts with unreviewed entries in the registry.
-**Does:** reads `~/.claude/PENDING-UPDATES.md`, presents pending entries, applies the ones you select via subagents, and validates with your eval suite. Opt-in, nothing auto-applies. The baseline-then-eval loop is non-bypassable by design, you need a before and after signal to know if a config change regressed behavior.
-
-### /orchestrator-scaffold
-
-`New or half-set-up project → agent and grounding files in place`
-
-**When:** you run `/orchestrator:scaffold`, say "scaffold this project" or "add mission brand principles," or Phase 1 boot check surfaces missing scaffolding.
-**Does:** three modes. Default auto-detects what's missing. `lifecycle` scaffolds the six agent files (product, experience, craft, build, data, quality). `grounding` runs an interview to draft mission.md, brand.md, principles.md, the identity layer that survives compaction and gives every subagent a consistent product lens without you re-explaining context each session.
-
-### /orchestrator-route
-
-`Over-target ORCHESTRATOR.md → facts routed to their owners, file back in range`
-
-**When:** a size gate fires, `/wrap` reports the file over its 10,000-15,000-char target range (20,000 hard max), or you say "route this" or "this file is too big."
-**Does:** routes durable facts out of `ORCHESTRATOR.md` to the memory files that own them, it's a router, not a store or a log. Six gates keep it honest: never evict by recency, route to the on-demand layer instead of always-read agent files, never archive a fact that's still true, verify every fact kept a home, commit a baseline before editing, measure the whole boot set (not just the one file) before and after. Not a tidy-up pass, it triggers on size or staleness only.
-
-The orchestrator family needs the companion files copied in Install above. Launch the thread directly with:
+The launchers need the companion files copied in Install above. Launch the thread directly with:
 
 ```bash
 claude --append-system-prompt-file ~/.claude/orchestrator-prompt.md
@@ -262,10 +222,10 @@ These skills reference my specific setup. Here's what that means and what you'd 
 | Second Brain / QMD                  | Long-term searchable notes          | Obsidian, Notion, your notes system                                           |
 | ORCHESTRATOR.md                     | State file for orchestrator threads | Optional, only relevant if you use the orchestrator pattern                   |
 | `.claude/projects/*/memory/`        | Per-project memory dir              | Optional, Claude Code memory convention                                      |
-| `~/.claude/orchestrator-prompt.md`  | Orca system prompt                  | Required for orchestrator family, copy from `templates/`                     |
-| `~/.claude/PENDING-UPDATES.md`      | Config update registry              | Required for `/orchestrator:update`; `/wrap` also writes to it, copy from `templates/` |
-| `~/.claude/projects/SCAFFOLDING.md` | Per-project scaffold version index  | Used by `/orchestrator:scaffold`, create manually |
-| `~/.claude/evals/`                  | Token + behavioral regression suite | Optional. Without it, `/orchestrator:update` falls back to a `wc -c` byte-count baseline and skips the behavioral suite |
+| `~/.claude/orchestrator-prompt.md`  | Orca system prompt                  | Required for the launchers, copy from `templates/`                     |
+| `~/.claude/PENDING-UPDATES.md`      | Config update registry              | Optional; `/wrap` writes to it, copy from `templates/` |
+| `~/.claude/projects/SCAFFOLDING.md` | Per-project scaffold version index  | Used by the `agent-context` skill, create manually |
+| `~/.claude/evals/`                  | Token + behavioral regression suite | Optional |
 
 The gh cleanup skills are stack-agnostic. The wrap skills work without Linear or Second Brain, just skip those steps. The orchestrator skills require the two template files above.
 

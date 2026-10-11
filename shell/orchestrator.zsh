@@ -1,10 +1,9 @@
 # ─── Orchestrator shell launchers ──────────────────────────
 #
-# Provides `cco`, `ccp`, `ccb` — the shell entry points for the
+# Provides `cco` and `ccp` — the shell entry points for the
 # orchestrator thread pattern. `cco` opens a thread with the orchestrator
-# system prompt loaded (scaffolding only, cheap). `ccb` does the same and
-# then runs `/orchestrator-boot` to rehydrate prior state (much more
-# context — that's why these are two separate commands, not one flag).
+# system prompt loaded; project state arrives via a SessionStart hook, not
+# a boot command.
 # `ccp` is shorthand for `cco pickup`: it restores a worktree and delivers
 # a saved pickup prompt as the new thread's opening message.
 #
@@ -19,7 +18,7 @@
 #   - `~/.claude/orchestrator-prompt.md` (copy from templates/ — see the
 #     README's orchestrator family section).
 #
-# Remote control is off by default. `cco` and `ccb` only pass
+# Remote control is off by default. `cco` only passes
 # `--remote-control` to `claude` when `CCO_REMOTE_CONTROL` is set and
 # non-empty (`export CCO_REMOTE_CONTROL=1`) — that flag opens an outbound
 # control connection letting claude.ai/code drive the session.
@@ -28,7 +27,7 @@
 # `wrap-continue`'s docs reference indirectly (the collision guard that
 # auto-isolates a second concurrent session into its own worktree). That
 # wrapper is part of a separate, private terminal-title setup and doesn't
-# belong in a public skills repo. Without it, `cco`/`ccb`/`ccp` fall
+# belong in a public skills repo. Without it, `cco`/`ccp` fall
 # through to calling the plain `claude` binary — everything above still
 # works, you just don't get automatic worktree isolation on collision.
 #
@@ -484,20 +483,7 @@ cco() {
     return
   fi
 
-  local orch="$(_cco_memdir)/ORCHESTRATOR.md"
-  echo "✦ Orchestrator mode loaded (scaffolding only — no boot)"
-  if [ -f "$orch" ]; then
-    local _orch_mtime
-    _orch_mtime=$(_cc_mtime "$orch")
-    if [[ -n "$_orch_mtime" ]]; then
-      local age=$(( ( $(date +%s) - _orch_mtime ) / 86400 ))
-      echo "  ↳ state found for this project, updated ${age}d ago. \`ccb\` to rehydrate."
-    else
-      echo "  ↳ state found for this project. \`ccb\` to rehydrate."
-    fi
-  else
-    echo "  ↳ no orchestrator state here yet. \`ccb\` to scaffold one."
-  fi
+  echo "✦ Orchestrator mode loaded"
 
   "${base[@]}"
 }
@@ -539,14 +525,3 @@ ccp() {
   done
   cco "${_cp_pre[@]}" pickup "${_cp_post[@]}"
 }
-
-ccb() {
-  echo "✦ Orchestrator mode + boot"
-  local base=(claude --append-system-prompt-file ~/.claude/orchestrator-prompt.md)
-  [[ -n "$CCO_REMOTE_CONTROL" ]] && base+=(--remote-control)
-  # Flags must precede the positional prompt: claude [options] [command] [prompt]
-  "${base[@]}" "$@" "/orchestrator-boot"
-}
-
-# Back-compat alias — `ccob` was the original name.
-alias ccob=ccb
