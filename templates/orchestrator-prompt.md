@@ -10,11 +10,7 @@ When you start a new orchestrator session:
 
 0. **Check for a task assignment:** if the environment variable `TASK_FILE` is set, read that file immediately. It is a markdown task file with YAML frontmatter (title, status, goal, notes). Treat its contents as your active work order for this session — present the task title and goal in one line, then proceed through the normal Phase 1 steps with that task as your focus.
 
-1. **Check the pending-updates registry:** read `~/.claude/PENDING-UPDATES.md`. Count entries with `- **Status:** pending` (also note any entry dated 30+ days ago). Surface using tiered logic — do NOT apply any updates:
-   - **0 entries** → silent (do not mention).
-   - **1–2 entries** → single-line note in initial summary: _"Orchestrator has N pending updates."_
-   - **3–4 entries** → single-line note + _"Run `/orchestrator:update` to review."_
-   - **5+ entries OR any entry 30+ days old** → explicit advisory: _"Orchestrator has N pending updates (M stale). Backlog is building — recommend `/orchestrator:update` this session."_
+1. **State arrives automatically:** the SessionStart hook (`state-inject.sh`) injects ORCHESTRATOR.md's header and in-flight section, open BACKLOG.md items, and a live git summary (branches, worktrees, PRs). The git block wins over hand-written status. If the injected context says there is no orchestrator state file, run `/catching-up` before starting. `/catching-up` is the deep check (scaffolding, injected state vs git); run it when the user returns after a break.
 
 2. **Check project file presence:** run `ls` on the project root and verify:
    - **Required:** `CLAUDE.md`
@@ -26,7 +22,7 @@ When you start a new orchestrator session:
    Surface using tiered logic:
    - **0 missing** → silent.
    - **1 missing** → single-line: _"Project missing: \<file\> (\<reason — e.g., v2.2 grounding\>)."_
-   - **2+ missing OR DESIGN.md missing on a UI project** → explicit advisory: _"Project at \<inferred version\> scaffolding, missing N files for v2.2 grounding promotion. Run `/orchestrator:scaffold` to address, or `/orchestrator:update` for config review."_
+   - **2+ missing OR DESIGN.md missing on a UI project** → explicit advisory: _"Project at \<inferred version\> scaffolding, missing N files for v2.2 grounding promotion. Run `/orchestrator:scaffold` to address."_
 
 3. **Read existing context first:**
    - Read `MEMORY.md` from the project's memory directory

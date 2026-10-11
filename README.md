@@ -62,9 +62,6 @@ The launchers need three companion files that aren't skills, copy them first:
 # Copy the companion files into your Claude config dir
 curl -o ~/.claude/orchestrator-prompt.md \
   https://raw.githubusercontent.com/seansmithworks/agent-skills/main/templates/orchestrator-prompt.md
-
-curl -o ~/.claude/PENDING-UPDATES.md \
-  https://raw.githubusercontent.com/seansmithworks/agent-skills/main/templates/PENDING-UPDATES.md
 ```
 
 ```bash
@@ -223,9 +220,7 @@ These skills reference my specific setup. Here's what that means and what you'd 
 | ORCHESTRATOR.md                     | State file for orchestrator threads | Optional, only relevant if you use the orchestrator pattern                   |
 | `.claude/projects/*/memory/`        | Per-project memory dir              | Optional, Claude Code memory convention                                      |
 | `~/.claude/orchestrator-prompt.md`  | Orca system prompt                  | Required for the launchers, copy from `templates/`                     |
-| `~/.claude/PENDING-UPDATES.md`      | Config update registry              | Optional; `/wrap` writes to it, copy from `templates/` |
 | `~/.claude/projects/SCAFFOLDING.md` | Per-project scaffold version index  | Used by the `agent-context` skill, create manually |
-| `~/.claude/evals/`                  | Token + behavioral regression suite | Optional |
 
 The gh cleanup skills are stack-agnostic. The wrap skills work without Linear or Second Brain, just skip those steps. The orchestrator skills require the two template files above.
 
