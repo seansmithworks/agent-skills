@@ -1,6 +1,6 @@
 ---
 name: orchestrator-boot
-description: Run the orchestrator session-start check — task file, pending updates, project scaffolding, context reads, rehydration. Use on first activation of an orchestrator thread, or when Sean says "boot", "orchestrator boot", "start up", or "get up to speed on this project".
+description: DEPRECATED, do not invoke. State now arrives automatically via the state-inject.sh SessionStart hook; pending-updates and scaffolding checks live in /catching-up. Kept only until the cleanup lane deletes it.
 ---
 
 # Orchestrator Boot
