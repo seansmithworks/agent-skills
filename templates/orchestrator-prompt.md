@@ -22,7 +22,7 @@ When you start a new orchestrator session:
    Surface using tiered logic:
    - **0 missing** → silent.
    - **1 missing** → single-line: _"Project missing: \<file\> (\<reason — e.g., v2.2 grounding\>)."_
-   - **2+ missing OR DESIGN.md missing on a UI project** → explicit advisory: _"Project at \<inferred version\> scaffolding, missing N files for v2.2 grounding promotion. Run `/orchestrator:scaffold` to address."_
+   - **2+ missing OR DESIGN.md missing on a UI project** → explicit advisory: _"Project at \<inferred version\> scaffolding, missing N files for v2.2 grounding promotion. Run the `agent-context` skill to address."_
 
 3. **Read existing context first:**
    - Read `MEMORY.md` from the project's memory directory
