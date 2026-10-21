@@ -31,6 +31,7 @@ There are two ways out of a session and two ways back in. `/wrap-continue` → `
 | [`/gh-fork-sync`](#gh-fork-sync) | Fork drifting behind upstream → synced and pushed to origin |
 | [`/gh-stale-issues`](#gh-stale-issues) | Issue list drifted into noise → triaged into ready-to-run commands |
 | [`/model-census`](#model-census) | No visibility into which model actually ran → per-thread, per-subagent-type, per-repo report |
+| [`/mild2wild`](#mild2wild) | One design idea, one safe answer → a ladder of variants from mild to wilder, with a pick |
 
 ---
 
@@ -206,6 +207,13 @@ Four agent tiers, pinned once in agent frontmatter instead of decided per spawn.
 **Does:** reads local transcripts (`~/.claude/projects/**`) and reconstructs, per main thread and per subagent, which model actually executed — joining the parent thread's subagent-type declaration to the subagent's own transcript by agent ID, since the two files don't share that link directly. `--brief --since <date>` for the quick version. Flag two things on sight: any Fable or top-tier row in the main-thread table, and a global `model` key in `settings.json` — that's usually `/model <x>` + Enter run without the session-only flag, and it silently taxes every session after. Token counts reported are raw, not dollars.
 
 On my machine, across ~1,500 subagent runs in a month, every run of the three pinned agents landed on its pinned model unless the caller passed an explicit `model` override — routing never leaked on its own. The cost leak was the main thread: `/model <x>` + Enter silently saves a global default. The SessionStart guard catches that.
+
+### /mild2wild
+
+`One design idea, one safe answer → a ladder of variants from mild to wilder, with a pick`
+
+**When:** you're exploring a screen or flow and want divergence before committing to a direction.
+**Does:** fans out N variants across five tiers (mild, medium, bold, wild, wilder) in Pencil, HTML, or Zoah. Mild to bold stays inside your `DESIGN.md`; wild and wilder each break one named rule. Prints a tiered banner, builds a browsable gallery, and carries your picks forward round to round. The gallery uses the `artifact-house-style` kit if you have it and a built-in stylesheet if you don't (`python3`, Pillow).
 
 ---
 
