@@ -212,6 +212,10 @@ On my machine, across ~1,500 subagent runs in a month, every run of the three pi
 
 `One design idea, one safe answer → a ladder of variants from mild to wilder, with a pick`
 
+![Five product cards for a fictional shop, one per tier from mild to wilder](assets/mild2wild-hero.png)
+
+*A fictional retailer's product card, mild → wilder. Mild to bold stays inside the base system; the wilder card drops the card frame for a shelf.*
+
 **When:** you're exploring a screen or flow and want divergence before committing to a direction.
 **Does:** fans out N variants across five tiers (mild, medium, bold, wild, wilder) in Pencil, HTML, or Zoah. Mild to bold stays inside your `DESIGN.md`; wild and wilder each break one named rule. Prints a tiered banner, builds a browsable gallery, and carries your picks forward round to round. The gallery uses the `artifact-house-style` kit if you have it and a built-in stylesheet if you don't (`python3`, Pillow).
 
