@@ -16,8 +16,8 @@ def stage(r, prefix):
     for d in sorted(glob.glob(f'{R}/{r}/*/')):
         n = os.path.basename(d.rstrip('/'))
         im = Image.open(d + 'card.png').convert('RGB'); w, h = im.size
-        im = im.crop((0, 0, w, min(h, int(w * 900 / 1440)))); im.thumbnail((960, 960))
-        im.save(f'{G}/thumbs/{prefix}{n}.jpg', quality=72)
+        im = im.crop((0, 0, w, min(h, int(w * 900 / 1440)))); im.thumbnail((1600, 1600))
+        im.save(f'{G}/thumbs/{prefix}{n}.jpg', quality=78)
         shutil.copy(d + 'index.html', f'{G}/cards/{prefix}{n}.html')
 
 cur = load(CUR)
@@ -74,7 +74,7 @@ body{background:var(--page);color:var(--text);font-family:var(--font-sans);margi
 .title{font-size:2rem;line-height:1.15;margin:0}.heading{font-size:1.25rem;margin:0}.subhead{font-size:1rem;margin:0}
 .lead{font-size:1.125rem;margin:0}.body-sm{font-size:.875rem;margin:0}.caption{font-size:.75rem}
 .label{font-size:.75rem;text-transform:uppercase;letter-spacing:.04em}
-.os-container{max-width:1240px;margin:0 auto;padding:var(--space-32) var(--space-16)}
+.os-container{max-width:1600px;margin:0 auto;padding:var(--space-32) var(--space-16)}
 .os-doc,.os-front,.os-evidence{display:flex;flex-direction:column;gap:var(--space-32)}
 .os-masthead{display:flex;flex-direction:column;gap:var(--space-8)}
 .os-meta,.os-muted{color:var(--text-muted)}
@@ -111,7 +111,7 @@ button{{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poi
 .os-scale button>.caption{{margin-top:var(--space-4)}}
 .os-scale button:focus-visible,.shot:focus-visible,.open:focus-visible,.vbar button:focus-visible{{outline:var(--ring-width) solid var(--accent);outline-offset:var(--ring-width)}}
 .os-sec{{scroll-margin-top:var(--space-24)}}
-.grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:var(--space-16)}}
+.grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,640px),1fr));gap:var(--space-16)}}
 .card{{display:flex;flex-direction:column;gap:var(--space-12);min-width:0;padding:var(--space-16)}}
 .cap{{display:flex;flex-direction:column;gap:var(--space-4);align-items:flex-start}}
 .shot{{display:block;width:100%;border-radius:var(--radius-control);overflow:hidden;background:var(--layer-2);border:var(--line-width) solid var(--line);aspect-ratio:16/10}}
