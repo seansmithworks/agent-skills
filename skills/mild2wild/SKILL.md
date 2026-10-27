@@ -1,6 +1,6 @@
 ---
 name: mild2wild
-description: "Design ladder: fan out N design variants from mild to wilder (mild, medium, bold, wild, wilder) in Pencil, HTML, or Zoah, with a tiered banner, a gallery, and carry-forward rounds. Invoke on \"mild2wild\", \"mild to wild\", \"mild to wilder\", \"wild and wilder\", \"go wilder\", \"even wilder\", \"design pass\", \"paper/pen.dev variants\". Routing: single-element tweaks (bolder, quieter, one-off generate) go to `impeccable`, not here. Screen- or flow-level exploration only."
+description: "Design ladder: fan out N design variants from mild to wilder (mild, medium, bold, wild, wilder) in HTML (default), Pencil, or Zoah, with a tiered banner, a gallery, and carry-forward rounds. Invoke on \"mild2wild\", \"mild to wild\", \"mild to wilder\", \"wild and wilder\", \"go wilder\", \"even wilder\", \"design pass\", \"paper/pen.dev variants\". Routing: single-element tweaks (bolder, quieter, one-off generate) go to `impeccable`, not here. Screen- or flow-level exploration only."
 argument-hint: "[count] [clean|full|extreme] <what to design>"
 user-invocable: true
 ---
@@ -19,7 +19,7 @@ Many variants of one subject, safe to structurally different. Ends in a pick, th
 Mild to bold obey DESIGN.md. Each brief states **Intent** (what the subject must do for its user) and **Habit** (what its category does today). Wild is measured against Habit; a wild card that serves Intent worse than mild has failed.
 
 ## Args
-`[count=10] [full|clean|extreme]`: all five tiers, mild to bold, or bold to wilder. Split evenly, remainder to the wildest. Count: when the shape is clear, pick it (flows ~6, single static things ~20) and state it in the banner; ask once only if it is truly ambiguous. Medium: HTML is the default. If the user names a tool (pen.dev/Pencil, a .pen file, Figma, Zoah), use it. If the project is native (Swift/SwiftUI/AppKit, etc.) and no preference is saved, ask once: "HTML, or a native design tool?" (the one allowed medium question; a .pen answer triggers the dedicated-.pen ask). Save the answer to `~/.claude/.mild2wild/prefs.md`, reuse it without asking next time, and state the medium in the banner. Infer Intent and Habit and state them; don't ask. No args or `help`: print banner.md's menu and stop.
+`[count=20] [full|clean|extreme]`: all five tiers, mild to bold, or bold to wilder. Split evenly, remainder to the wildest. Count: when the shape is clear, pick it (flows ~6, single static things ~20) and state it in the banner; ask once only if it is truly ambiguous. Medium: HTML is the default. If the user names a tool (pen.dev/Pencil, a .pen file, Figma, Zoah), use it. If the project is native (Swift/SwiftUI/AppKit, etc.) and no preference is saved, ask once: "HTML, or a native design tool?" (the one allowed medium question; a .pen answer triggers the dedicated-.pen ask). Save the answer to `~/.claude/.mild2wild/prefs.md`, reuse it without asking next time, and state the medium in the banner. Infer Intent and Habit and state them; don't ask. No args or `help`: print banner.md's menu and stop.
 
 ## Card
 `<run>/rN/<id>/` holds `card.png` and `index.html` (Pencil: export HTML). One line per card in `<run>/rN/manifest.jsonl`: `{id, round, tier, breaks, name, idea, src, png}`; `id` a zero-padded string, `breaks` "" below wild, `src` = `rN/<id>/index.html`. gallery.py reads these exactly. `idea`: one sentence on what matters most. Variety beats polish. One render pass, one fix pass.
@@ -35,7 +35,7 @@ Per wave, a subagent that didn't build the cards checks each. Fail: wild still r
 - **Output:** `<repo>/.mild2wild/<YYYY-MM-DD>-<slug>/`; agents write only their own card folder. Never /tmp. Not gitignored: add it, tell the user.
 
 ## Rounds
-Next brief opens `Endorsed, must keep:` + pick ids; user corrections carry forward as constraints. User picks: push all forward (every card gets another iteration, plus N new cards in the wildest tiers (default 5)) or ladder from #id (a fresh ladder from one card).
+Next brief opens `Endorsed, must keep:` + pick ids; user corrections carry forward as constraints. User picks: push all forward (every card gets another iteration, plus N new cards in the wildest tiers (default 10)) or ladder from #id (a fresh ladder from one card).
 
 ## End
 Gallery: `python3 -I ~/.claude/skills/mild2wild/gallery.py <run> <outdir> rN`, same URL each round. User picks; build it or hand off to `/impeccable craft`, never automatic. Log rounds-to-pick and pick tier (or "no pick") in `<run>/index.md`.
