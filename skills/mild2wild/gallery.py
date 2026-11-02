@@ -111,10 +111,12 @@ button{{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poi
 .os-scale button>.caption{{margin-top:var(--space-4)}}
 .os-scale button:focus-visible,.shot:focus-visible,.open:focus-visible,.vbar button:focus-visible{{outline:var(--ring-width) solid var(--accent);outline-offset:var(--ring-width)}}
 .os-sec{{scroll-margin-top:var(--space-24)}}
-.grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,640px),1fr));gap:var(--space-16)}}
+.grid{{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-16)}}
 .card{{display:flex;flex-direction:column;gap:var(--space-12);min-width:0;padding:var(--space-16)}}
 .cap{{display:flex;flex-direction:column;gap:var(--space-4);align-items:flex-start}}
 .shot{{display:block;width:100%;border-radius:var(--radius-control);overflow:hidden;background:var(--layer-2);border:var(--line-width) solid var(--line);aspect-ratio:16/10}}
+.shot{{position:relative}}
+.shot iframe{{position:absolute;top:0;left:0;width:1440px;height:900px;border:0;transform-origin:0 0;pointer-events:none;background:var(--page)}}
 .shot img{{width:100%;height:100%;object-fit:cover;object-position:top;display:block}}
 .open{{margin-top:var(--space-8);border-bottom:var(--line-width) solid var(--line-strong)}}
 .sm .shot img{{filter:grayscale(1)}}
@@ -126,6 +128,9 @@ button{{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poi
 .vbar .vt{{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 .vbar button{{padding:var(--space-4) var(--space-12);border:var(--line-width) solid var(--line);border-radius:var(--radius-control);background:var(--layer-2)}}
 .viewer iframe{{flex:1;width:100%;border:0;background:var(--page)}}
+body[data-mode="report"] .os-evidence .os-sec{{grid-template-columns:minmax(0,1fr)}}
+body[data-mode="report"] .os-evidence .os-sec>.os-sh,body[data-mode="report"] .os-evidence .os-sec>:not(.os-sh){{grid-column:1}}
+body[data-mode="report"] .os-evidence .os-sec>.os-sh{{grid-row:auto;position:static}}
 @media (max-width:599px){{.os-scale{{grid-template-columns:1fr}}.os-scale-cap{{flex-direction:column}}}}
 </style>
 </head>
@@ -177,6 +182,19 @@ button{{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poi
     var j=e.target.closest('[data-jump]');
     if(j){{var el=document.getElementById(j.dataset.jump);if(el)el.scrollIntoView({{behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}});}}
   }});
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&'IntersectionObserver' in window){{
+    var fit=function(f){{f.style.transform='scale('+(f.parentNode.clientWidth/1440)+')';}};
+    var ro=new ResizeObserver(function(es){{es.forEach(function(e){{var f=e.target.querySelector('iframe');if(f)fit(f);}});}});
+    var io=new IntersectionObserver(function(es){{es.forEach(function(e){{
+      if(!e.isIntersecting)return; var b=e.target; io.unobserve(b);
+      fetch(b.dataset.src).then(function(r){{if(!r.ok)throw 0;return r.text();}}).then(function(t){{
+        var f=document.createElement('iframe');f.title='Live card';f.tabIndex=-1;f.setAttribute('aria-hidden','true');
+        f.srcdoc=t;b.appendChild(f);fit(f);ro.observe(b);
+        f.addEventListener('load',function(){{var im=b.querySelector('img');if(im)im.style.visibility='hidden';}});
+      }}).catch(function(){{}});
+    }});}},{{rootMargin:'600px 0px'}});
+    list.forEach(function(b){{io.observe(b);}});
+  }}
   document.getElementById('vclose').onclick=hide;
   document.getElementById('vprev').onclick=function(){{show(idx-1);}};
   document.getElementById('vnext').onclick=function(){{show(idx+1);}};
