@@ -345,6 +345,9 @@ _cc_pk_scan() {
 # falls back to offering the matching *.consumed entries under a dimmed
 # heading instead of reporting nothing found. Selecting one re-delivers it
 # (see _cc_pk_deliver) without resurrecting it into the pending set.
+#
+# With no query and exactly one pending pickup, it is delivered immediately
+# with no list or prompt (the consumed fallback and no-match paths still prompt).
 _cc_pk_cmd() {
   local _pk_query="$1"
   local -a _pk_fwd_flags=("${_CC_PK_FWD_FLAGS[@]}")
@@ -388,7 +391,12 @@ _cc_pk_cmd() {
       fi
     fi
   else
-    if (( ${#_pk_files_all[@]} > 0 )); then
+    if (( ${#_pk_files_all[@]} == 1 )); then
+      _cc_pk_parse "${_pk_files_all[1]}"
+      printf '  picking up %b  \033[2m%s/%s\033[0m\n' "${_CC_PK_THREAD:-<unnamed>}" "$_CC_PK_REPO" "$_CC_PK_WORKTREE"
+      _cc_pk_deliver "${_pk_files_all[1]}" "${_pk_fwd_flags[@]}"
+      return $?
+    elif (( ${#_pk_files_all[@]} > 1 )); then
       _pk_files=("${_pk_files_all[@]}")
     else
       _pk_consumed_mode=1
