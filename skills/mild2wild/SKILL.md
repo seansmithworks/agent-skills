@@ -18,6 +18,11 @@ Many variants of one subject, safe to structurally different. Ends in a pick, th
 
 Mild to bold obey DESIGN.md. Each brief states **Intent** (what the subject must do for its user) and **Habit** (what its category does today). Wild is measured against Habit; a wild card that serves Intent worse than mild has failed.
 
+## Round 0: wireframes (optional)
+When the layout or flow itself is the hard part, round 0 is greyscale wireframes of different layouts: no fonts, colour, or styling, so the model doesn't get lost in visual detail. The ladder's visual rungs start only after a layout is picked, and that layout is the first round's Endorsed constraint. Skip for screens with an obvious, established layout.
+
+Before wireframing, research familiar patterns: name 2-4 existing products that solve a similar problem and the layout people already know from them (an inbox: look at real inboxes). Use the Mobbin MCP (`mcp__mobbin__search_screens`, `search_flows`) when available; otherwise name them from knowledge and say so in the banner.
+
 ## Args
 `[count=20] [full|clean|extreme]`: all five tiers, mild to bold, or bold to wilder. Split evenly, remainder to the wildest. Count: when the shape is clear, pick it (flows ~6, single static things ~20) and state it in the banner; ask once only if it is truly ambiguous. Medium: HTML is the default. If the user names a tool (pen.dev/Pencil, a .pen file, Figma, Zoah), use it. If the project is native (Swift/SwiftUI/AppKit, etc.) and no preference is saved, ask once: "HTML, or a native design tool?" (the one allowed medium question; a .pen answer triggers the dedicated-.pen ask). Save the answer to `~/.claude/.mild2wild/prefs.md`, reuse it without asking next time, and state the medium in the banner. Infer Intent and Habit and state them; don't ask. No args or `help`: print banner.md's menu and stop.
 
@@ -36,6 +41,7 @@ Per wave, a subagent that didn't build the cards checks each. Fail: wild still r
 
 ## Rounds
 Next brief opens `Endorsed, must keep:` + pick ids; user corrections carry forward as constraints. User picks: push all forward (every card gets another iteration, plus N new cards in the wildest tiers (default 10)) or ladder from #id (a fresh ladder from one card).
+A remix round may combine parts of several variants ("the type of 1 with the layout of 3") into N new cards.
 
 ## End
 Gallery: `python3 -I ~/.claude/skills/mild2wild/gallery.py <run> <outdir> rN`, same URL each round. User picks; build it or hand off to `/impeccable craft`, never automatic. Log rounds-to-pick and pick tier (or "no pick") in `<run>/index.md`.
