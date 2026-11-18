@@ -153,3 +153,10 @@ Sean: "in the wrap/wrap-continue we prune things that are no longer relevant. At
 - `wrap-continue`: build output only, never the worktree.
 - Never touch unpushed or dirty work. Report GB freed.
 - Build through `skill-forge`; arm-gate applies.
+
+## mild2wild round 0 follow-ups (2026-11-17, from PR #3 review, non-blocking)
+
+- [ ] Round-0 card format: define the wireframe card shape and a manifest `tier` value for r0.
+- [ ] Gallery rendering of r0 cards is untested; test-fire one wireframe round.
+- [ ] Banner slot for references "named from knowledge" when Mobbin is unavailable.
+- [ ] Remix rounds: say what N means (new cards vs total).
